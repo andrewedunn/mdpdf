@@ -150,11 +150,14 @@
     }
 
     .pane {
-      flex: 1;
+      flex: 1 1 0%;
       display: flex;
       flex-direction: column;
-      min-width: 0;
+      min-width: 100px;
+      overflow: hidden;
     }
+
+    body.resizing { cursor: col-resize; user-select: none; }
 
     .pane-label {
       font-size: 11px;
@@ -181,9 +184,14 @@
     }
 
     .divider {
-      width: 1px;
+      width: 5px;
       background: #ddd;
       flex-shrink: 0;
+      cursor: col-resize;
+      transition: background 0.15s;
+    }
+    .divider:hover, .divider.dragging {
+      background: #aaa;
     }
 
     #preview {
@@ -384,6 +392,37 @@
       render();
       showToast(`Loaded ${file.name}`);
     });
+  });
+
+  // Resizable divider
+  const divider = document.querySelector('.divider');
+  const panes = document.querySelector('.panes');
+  const leftPane = panes.children[0];
+  const rightPane = panes.children[2];
+
+  divider.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    document.body.classList.add('resizing');
+    divider.classList.add('dragging');
+
+    const onMouseMove = (e) => {
+      const rect = panes.getBoundingClientRect();
+      const offset = e.clientX - rect.left;
+      const total = rect.width - divider.offsetWidth;
+      const ratio = Math.max(0.1, Math.min(0.9, offset / rect.width));
+      leftPane.style.flex = `${ratio} 1 0%`;
+      rightPane.style.flex = `${1 - ratio} 1 0%`;
+    };
+
+    const onMouseUp = () => {
+      document.body.classList.remove('resizing');
+      divider.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   });
 
   render();
