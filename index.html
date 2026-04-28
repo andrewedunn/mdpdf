@@ -1,41 +1,71 @@
 <!-- ABOUTME: Markdown to HTML/PDF converter using window.print() for PDF export -->
-<!-- ABOUTME: Single-page app with live preview, syntax highlighting, and copy-as-HTML -->
+<!-- ABOUTME: Single-page app with live preview, syntax highlighting, and clipboard export -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Markdown to PDF — Simple, Free, Browser-Based Converter</title>
-  <meta name="description" content="Free, simple markdown to PDF converter that runs entirely in your browser. Live preview, syntax highlighting, drag-and-drop. No signup, no uploads, no server — just paste and print.">
+  <title>Markdown to PDF Converter</title>
+  <meta name="description" content="Convert Markdown to PDF in your browser. Paste or drop a Markdown file, preview the result, export with print, or copy Markdown and HTML back out.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="application-name" content="Markdown to PDF Converter">
+  <meta name="theme-color" content="#1a1a2e">
   <link rel="canonical" href="https://md.dunn.us/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Markdown to PDF — Simple, Free, Browser-Based Converter">
-  <meta property="og:description" content="Free, simple markdown to PDF converter that runs entirely in your browser. Live preview, syntax highlighting, drag-and-drop. No signup, no uploads.">
+  <meta property="og:title" content="Markdown to PDF Converter">
+  <meta property="og:description" content="Paste or drop Markdown, preview it in the browser, export with print, or copy Markdown and HTML back out.">
   <meta property="og:url" content="https://md.dunn.us/">
+  <meta property="og:site_name" content="Markdown to PDF Converter">
+  <meta property="og:locale" content="en_US">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Markdown to PDF — Simple, Free, Browser-Based Converter">
-  <meta name="twitter:description" content="Free, simple markdown to PDF converter. Live preview, syntax highlighting, drag-and-drop. Runs entirely in your browser — no signup, no uploads.">
+  <meta name="twitter:title" content="Markdown to PDF Converter">
+  <meta name="twitter:description" content="Paste or drop Markdown, preview it in the browser, export with print, or copy Markdown and HTML back out.">
 
   <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Markdown to PDF Converter",
-    "url": "https://md.dunn.us/",
-    "description": "Free, simple markdown to PDF converter that runs entirely in your browser. Live preview, syntax highlighting, drag-and-drop.",
-    "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Any",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "browserRequirements": "Requires a modern web browser"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://md.dunn.us/#website",
+        "name": "Markdown to PDF Converter",
+        "url": "https://md.dunn.us/",
+        "description": "A browser-based Markdown to PDF converter with live preview and clipboard export.",
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://md.dunn.us/#app",
+        "name": "Markdown to PDF Converter",
+        "url": "https://md.dunn.us/",
+        "description": "Convert Markdown to PDF in your browser. Paste or drop a Markdown file, preview the result, export with print, or copy Markdown and HTML back out.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser",
+        "isAccessibleForFree": true,
+        "featureList": [
+          "Markdown to PDF export",
+          "Live Markdown preview",
+          "Syntax highlighting",
+          "Drag-and-drop Markdown file loading",
+          "Copy Markdown to clipboard",
+          "Copy rendered HTML to clipboard"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "isPartOf": {
+          "@id": "https://md.dunn.us/#website"
+        }
+      }
+    ]
   }
   </script>
 
@@ -81,6 +111,8 @@
 
     .toolbar {
       display: flex;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       padding: 8px 16px;
       background: #fff;
@@ -106,7 +138,7 @@
     }
     .toolbar button.primary:hover { background: #2a2a4e; }
 
-    .toolbar .spacer { flex: 1; }
+    .toolbar .spacer { flex: 1 1 auto; min-width: 24px; }
 
     .toast {
       position: fixed;
@@ -254,10 +286,74 @@
     #preview hr { border: none; border-top: 1px solid #ddd; margin: 1.5em 0; }
     #preview a { color: #0366d6; }
 
+    .noscript-content {
+      padding: 16px;
+      background: #fff8e6;
+      border-bottom: 1px solid #ead9a5;
+      color: #3d3215;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .site-info {
+      flex-shrink: 0;
+      border-top: 1px solid #ddd;
+      background: #fff;
+      color: #333;
+    }
+
+    .site-info-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .site-info h2 {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 2px;
+    }
+
+    .site-info p {
+      color: #555;
+    }
+
+    .site-info details {
+      margin-top: 8px;
+      color: #555;
+    }
+
+    .site-info summary {
+      display: inline-flex;
+      cursor: pointer;
+      color: #1a1a2e;
+      font-weight: 600;
+    }
+
+    .site-info ul {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 24px;
+      margin-top: 8px;
+      padding-left: 18px;
+    }
+
+    .site-info li {
+      min-width: 0;
+    }
+
+    @media (max-width: 560px) {
+      .toolbar .spacer { display: none; }
+      .toolbar button { flex: 1 1 auto; }
+      .site-info ul { grid-template-columns: 1fr; }
+    }
+
     /* Print styles — only the preview pane prints */
     @media print {
       body { display: block; background: #fff; }
-      header, .toolbar, .pane:first-child, .divider, .toast { display: none !important; }
+      header, .toolbar, .pane:first-child, .divider, .toast, .noscript-content, .site-info { display: none !important; }
       .panes { display: block; }
       .pane-label { display: none; }
       #preview {
@@ -272,33 +368,64 @@
 <body>
 
 <header>
-  <h1>Markdown to PDF — Simple, Free Converter</h1>
+  <h1>Markdown to PDF Converter</h1>
 </header>
 
-<div class="toolbar">
+<noscript>
+  <section class="noscript-content" aria-labelledby="noscript-title">
+    <h2 id="noscript-title">Markdown to PDF converter</h2>
+    <p>Paste Markdown, preview it, export with your browser print dialog, or copy Markdown and HTML back out. JavaScript is required to use the editor.</p>
+  </section>
+</noscript>
+
+<div class="toolbar" role="toolbar" aria-label="Editor actions">
   <button onclick="clearEditor()">Clear</button>
   <div class="spacer"></div>
+  <button onclick="copyMarkdown()">Copy Markdown</button>
   <button onclick="copyHTML()">Copy HTML</button>
   <button class="primary" onclick="exportPDF()">Export PDF</button>
 </div>
 
-<div class="panes">
-  <div class="pane">
-    <div class="pane-label">Markdown</div>
-    <textarea id="editor" spellcheck="false" placeholder="Type or paste markdown here — or drag and drop a .md file anywhere on the page"></textarea>
+<main class="panes" id="converter" aria-label="Markdown editor and PDF preview">
+  <section class="pane">
+    <label class="pane-label" id="markdown-label" for="editor">Markdown</label>
+    <textarea id="editor" spellcheck="false" placeholder="Type or paste Markdown here, or drop a .md file anywhere on the page"></textarea>
+  </section>
+  <div class="divider" role="separator" aria-label="Resize editor and preview panes"></div>
+  <section class="pane" aria-labelledby="preview-label">
+    <div class="pane-label" id="preview-label">Preview</div>
+    <div id="preview">
+      <article>
+        <h2>Markdown to PDF converter</h2>
+        <p>Paste Markdown, preview it, export with your browser print dialog, or copy Markdown and HTML back out.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="site-info" aria-labelledby="about-title">
+  <div class="site-info-inner">
+    <h2 id="about-title">Markdown to PDF in the browser</h2>
+    <p>Paste Markdown on the left. The preview updates on the right. Export PDF opens your browser print dialog. Copy Markdown and Copy HTML put the current document back on your clipboard.</p>
+    <details>
+      <summary>How it works</summary>
+      <ul>
+        <li>Markdown is parsed in this page with marked.js.</li>
+        <li>Code blocks are highlighted with highlight.js.</li>
+        <li>Dropped .md files are read by your browser.</li>
+        <li>PDF export uses print. Choose Save as PDF.</li>
+        <li>The converter does not submit your Markdown to a server.</li>
+        <li>The page loads libraries from CDNs and uses Umami analytics.</li>
+      </ul>
+    </details>
   </div>
-  <div class="divider"></div>
-  <div class="pane">
-    <div class="pane-label">Preview</div>
-    <div id="preview"></div>
-  </div>
-</div>
+</footer>
 
 <div class="drop-overlay" id="dropOverlay">
   <div class="drop-overlay-inner">Drop .md file to load</div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -342,9 +469,66 @@
     setTimeout(() => toast.classList.remove('show'), 2000);
   }
 
+  function copyWithSelection(text) {
+    const scratch = document.createElement('textarea');
+    const activeElement = document.activeElement;
+
+    scratch.value = text;
+    scratch.setAttribute('readonly', '');
+    scratch.setAttribute('aria-hidden', 'true');
+    scratch.style.position = 'fixed';
+    scratch.style.top = '0';
+    scratch.style.left = '0';
+    scratch.style.width = '1px';
+    scratch.style.height = '1px';
+    scratch.style.padding = '0';
+    scratch.style.border = '0';
+    scratch.style.opacity = '0';
+
+    document.body.appendChild(scratch);
+    scratch.focus();
+    scratch.select();
+    scratch.setSelectionRange(0, scratch.value.length);
+
+    try {
+      return document.execCommand('copy');
+    } finally {
+      document.body.removeChild(scratch);
+      if (activeElement && typeof activeElement.focus === 'function') {
+        activeElement.focus();
+      }
+    }
+  }
+
+  function copyText(text, successMessage) {
+    if (!text) {
+      showToast('Nothing to copy');
+      return;
+    }
+
+    // Run the selection-based path first so it keeps the original click gesture.
+    if (copyWithSelection(text)) {
+      showToast(successMessage);
+      return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => showToast(successMessage))
+        .catch(() => showToast('Could not copy to clipboard'));
+      return;
+    }
+
+    showToast('Could not copy to clipboard');
+  }
+
+  function copyMarkdown() {
+    copyText(editor.value, 'Markdown copied to clipboard');
+  }
+
   function copyHTML() {
     const html = marked.parse(editor.value);
-    navigator.clipboard.writeText(html).then(() => showToast('HTML copied to clipboard'));
+    copyText(html, 'HTML copied to clipboard');
   }
 
   function exportPDF() {
